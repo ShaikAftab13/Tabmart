@@ -3,6 +3,7 @@ import Product from '../models/productModel.js';
 import { registerEmail, sendInngestEmail } from "../services/emailService.js";
 import User from "../models/userModel.js";
 import Order from "../models/orderModel.js";
+import DeliveryPartner from "../models/deliveryPartnerModel.js"
 
 const LOW_STOCK_THRESHOLD = 10;
 // Create a client to send and receive events
