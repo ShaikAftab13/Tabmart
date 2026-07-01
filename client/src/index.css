@@ -1,0 +1,329 @@
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=DM+Serif+Display:ital@0;1&display=swap");
+@import "tailwindcss";
+
+@theme {
+    /* Main Brand Colors */
+    --color-app-green: #163a24;
+    --color-app-green-light: #245336;
+    --color-app-green-lighter: #3f7d4c;
+
+    /* Extra Greens */
+    --color-app-forest: #0f2d1d;
+    --color-app-leaf: #4caf50;
+    --color-app-leaf-light: #81c784;
+    --color-app-mint: #dcfce7;
+    --color-app-sage: #a3b18a;
+    --color-app-olive: #606c38;
+
+    /* Accent */
+    --color-app-orange: #f97316;
+    --color-app-orange-dark: #ea580c;
+
+    /* Backgrounds */
+    --color-app-cream: #fafaf7;
+    --color-app-cream-dark: #f2f5ef;
+    --color-app-sand: #f7f4ea;
+    --color-app-white: #ffffff;
+
+    /* Text */
+    --color-app-text: #1b3022;
+    --color-app-text-light: #64748b;
+    --color-app-text-muted: #94a3b8;
+
+    /* Borders */
+    --color-app-border: #e2e8f0;
+    --color-app-border-light: #eef2f7;
+    --color-app-border-green: #d1fae5;
+
+    /* Status */
+    --color-app-success: #22c55e;
+    --color-app-error: #ef4444;
+    --color-app-warning: #f59e0b;
+
+    /* Shadows */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 8px 20px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 15px 35px rgba(0, 0, 0, 0.12);
+    --shadow-green: 0 10px 25px rgba(76, 175, 80, 0.18);
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(
+        135deg,
+        #163a24 0%,
+        #245336 50%,
+        #3f7d4c 100%
+    );
+
+    --gradient-secondary: linear-gradient(
+        135deg,
+        #f0fff4 0%,
+        #dcfce7 100%
+    );
+
+    --gradient-orange: linear-gradient(
+        135deg,
+        #f97316,
+        #ea580c
+    );
+
+    /* Fonts */
+    --font-sans: "Outfit", sans-serif;
+    --font-serif: "DM Serif Display", serif;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-sans);
+    color: var(--color-app-text);
+    background: var(--color-app-cream);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--color-app-cream);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-app-green-lighter);
+    border-radius: 20px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-app-green-light);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Global */
+* {
+    box-sizing: border-box;
+}
+
+a,
+button {
+    transition: all 0.25s ease;
+    cursor: pointer;
+}
+
+input,
+textarea,
+select {
+    transition: all 0.2s ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+}
+
+/* Reusable Utilities */
+
+.flex-center {
+    @apply flex items-center justify-center;
+}
+
+.page-container {
+    @apply max-w-7xl mx-auto px-4 md:px-6 lg:px-8;
+}
+
+.section-title {
+    font-family: var(--font-serif);
+    color: var(--color-app-forest);
+}
+
+.glass-card {
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.nature-card {
+    background: white;
+    border: 1px solid var(--color-app-border-green);
+    border-radius: 20px;
+    box-shadow: var(--shadow-sm);
+}
+
+.nature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+}
+
+.hero-gradient {
+    background: var(--gradient-primary);
+}
+
+.green-gradient {
+    background: var(--gradient-secondary);
+}
+
+.orange-gradient {
+    background: var(--gradient-orange);
+}
+
+.dropdown-link {
+    @apply flex items-center gap-3 px-4 py-3 text-sm;
+    color: var(--color-app-text-light);
+}
+
+.dropdown-link:hover {
+    background: #f0fff4;
+    color: var(--color-app-green);
+}
+
+/* Buttons */
+
+.btn-primary {
+    @apply px-6 py-3 rounded-xl font-medium text-white;
+    background: var(--gradient-primary);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-green);
+}
+
+.btn-secondary {
+    @apply px-6 py-3 rounded-xl font-medium;
+    background: white;
+    color: var(--color-app-green);
+    border: 1px solid var(--color-app-border-green);
+}
+
+.btn-secondary:hover {
+    background: var(--color-app-mint);
+}
+
+.btn-orange {
+    @apply px-6 py-3 rounded-xl font-medium text-white;
+    background: var(--gradient-orange);
+}
+
+.btn-orange:hover {
+    transform: translateY(-2px);
+}
+
+/* Inputs */
+
+.input-primary {
+    border: 1px solid var(--color-app-border);
+    border-radius: 12px;
+    padding: 12px 16px;
+    background: white;
+}
+
+.input-primary:focus {
+    border-color: var(--color-app-leaf);
+    box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.1);
+}
+
+/* Badges */
+
+.badge-green {
+    background: var(--color-app-mint);
+    color: var(--color-app-forest);
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.badge-orange {
+    background: #fff7ed;
+    color: var(--color-app-orange-dark);
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* Animations */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(24px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse-soft {
+    0%,100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.75;
+    }
+}
+
+@keyframes float {
+    0%,100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-8px);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.4s ease-out forwards;
+}
+
+.animate-slide-in-right {
+    animation: slideInRight 0.35s ease-out forwards;
+}
+
+.animate-slide-in-up {
+    animation: slideInUp 0.45s ease-out forwards;
+}
+
+.animate-pulse-soft {
+    animation: pulse-soft 2s infinite;
+}
+
+.animate-float {
+    animation: float 3s ease-in-out infinite;
+}
