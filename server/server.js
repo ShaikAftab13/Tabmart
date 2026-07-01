@@ -1,44 +1,52 @@
 import 'dotenv/config';
 import express from 'express';
-import mongoose from 'mongoose';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
+
 import connectDB from './config/db.js';
+
 import authRouter from './routes/authRouter.js';
-import cookieParser from "cookie-parser";
 import productRouter from './routes/productRouter.js';
 import uploadRouter from './routes/uploadRouter.js';
 import orderRouter from './routes/orderRouter.js';
+
 import { serve } from "inngest/express";
-import { inngest, functions } from "./inngest/index.js"
+import { inngest, functions } from "./inngest/index.js";
 
 const app = express();
 
-const allowedOrigins = [
-    'http://localhost:5173'
-]
+app.use(cors({
+    origin: [
+        'http://localhost:5173',
+        'https://your-frontend-domain.vercel.app'
+    ],
+    credentials: true
+}));
 
-app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 
+connectDB();
+
+
 app.get("/", (req, res) => {
-    res.send("hi")
+    res.send("API is running 🚀");
 });
+
 app.use('/api/auth', authRouter);
 app.use('/api/products', productRouter);
 app.use('/api/upload', uploadRouter);
 app.use('/api/orders', orderRouter);
 
+
 app.use("/api/inngest", serve({ client: inngest, functions }));
 
 app.use((err, req, res, next) => {
-    console.error(err);
-    res.status(500).json({ message: err.message });
-})
+    console.error("Error: ", err);
+    res.status(500).json({
+        message: err.message || "Internal Server Error"
+    });
+});
 
-const PORT = process.env.PORT || 3000;
-const startServer = async () => {
-    await connectDB();
-};
 
-startServer();
+export default app;
