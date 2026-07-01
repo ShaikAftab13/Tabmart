@@ -17,10 +17,13 @@ const allowedOrigins = [
     'http://localhost:5173'
 ]
 
-app.use(cors({origin: allowedOrigins,credentials: true}));
+app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 
+app.get("/", (req, res) => {
+    res.send("hi")
+});
 app.use('/api/auth', authRouter);
 app.use('/api/products', productRouter);
 app.use('/api/upload', uploadRouter);
@@ -30,7 +33,7 @@ app.use("/api/inngest", serve({ client: inngest, functions }));
 
 app.use((err, req, res, next) => {
     console.error(err);
-    res.status(500).json({message: err.message});
+    res.status(500).json({ message: err.message });
 })
 
 const PORT = process.env.PORT || 3000;
