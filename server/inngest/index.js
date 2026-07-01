@@ -109,7 +109,7 @@ const sendMonthlyOffers = inngest.createFunction(
             const batch = users.slice(i, i + batchSize);
             await step.run(`send-offers-batch-${i}`, async () => {
                 for (const u of batch) {
-                    await sendEmail({
+                    await sendInngestEmail({
                         to: u.email,
                         subject: 'Fresh picks just for you!',
                         body: `<div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 520px; margin: auto; border: 1px solid #e5e7eb; border-radius: 16px; overflow: hidden;">
