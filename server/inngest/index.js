@@ -17,20 +17,12 @@ const sendWelcomeEmail = inngest.createFunction(
         triggers: [{ event: "user/registered" }],
     },
     async ({ event, step }) => {
-        console.log("🔥 Workflow started");
-        console.log("Event:", event.data);
-
         const user = await step.run("fetch-user", async () => {
             console.log("Fetching user...");
             return User.findById(event.data.userId);
         });
-
-        console.log("User:", user);
-
         await step.run("send-email", async () => {
-            console.log("Sending email...");
             await registerEmail(user.email, user.name);
-            console.log("Email sent!");
         });
     }
 );
