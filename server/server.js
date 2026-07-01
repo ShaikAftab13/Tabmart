@@ -39,10 +39,6 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 3000;
 const startServer = async () => {
     await connectDB();
-
-    app.listen(PORT, () => {
-        console.log(`Server is live at http://localhost:${PORT}`);
-    });
 };
 
 startServer();
