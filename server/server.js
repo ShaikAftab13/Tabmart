@@ -12,6 +12,7 @@ import orderRouter from './routes/orderRouter.js';
 
 import { serve } from "inngest/express";
 import { inngest, functions } from "./inngest/index.js";
+import addressRouter from './routes/addressRouter.js';
 
 const app = express();
 
@@ -28,7 +29,6 @@ app.use(cookieParser());
 
 connectDB();
 
-
 app.get("/", (req, res) => {
     res.send("API is running 🚀");
 });
@@ -37,7 +37,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/products', productRouter);
 app.use('/api/upload', uploadRouter);
 app.use('/api/orders', orderRouter);
-
+app.use('/api/addresses', addressRouter);
 
 app.use("/api/inngest", serve({ client: inngest, functions }));
 
