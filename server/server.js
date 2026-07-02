@@ -13,6 +13,7 @@ import orderRouter from './routes/orderRouter.js';
 import { serve } from "inngest/express";
 import { inngest, functions } from "./inngest/index.js";
 import addressRouter from './routes/addressRouter.js';
+import adminRouter from './routes/adminRouter.js';
 
 const app = express();
 
@@ -38,6 +39,7 @@ app.use('/api/products', productRouter);
 app.use('/api/upload', uploadRouter);
 app.use('/api/orders', orderRouter);
 app.use('/api/addresses', addressRouter);
+app.use('/api/admin', adminRouter);
 
 app.use("/api/inngest", serve({ client: inngest, functions }));
 
