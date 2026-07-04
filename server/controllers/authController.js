@@ -75,14 +75,12 @@ export const register = async (req, res) => {
         delete userData.password;
         userData.isAdmin = getAdminStatus(userData.email);
 
-        const result = await inngest.send({
+        await inngest.send({
             name: "user/registered",
             data: {
                 userId: user._id.toString()
             }
         })
-
-        console.log(result)
 
         return res.status(201).json({
             message: "User registered successfully",

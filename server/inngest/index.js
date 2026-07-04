@@ -18,7 +18,6 @@ const sendWelcomeEmail = inngest.createFunction(
     },
     async ({ event, step }) => {
         const user = await step.run("fetch-user", async () => {
-            console.log("Fetching user...");
             return User.findById(event.data.userId);
         });
         await step.run("send-email", async () => {
