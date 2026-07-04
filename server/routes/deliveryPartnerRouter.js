@@ -1,5 +1,5 @@
 import express from "express";
-import { cancelDelivery, completeDelivery, getDeliveryDetail, getMyDeliveries, loginPartner, updateDeliveryStatus, updateLocation } from "../controllers/deliveryPartnerController";
+import { cancelDelivery, completeDelivery, getDeliveryDetail, getMyDeliveries, loginPartner, updateDeliveryStatus, updateLocation } from "../controllers/deliveryPartnerController.js";
 import deliveryAuth from "../middleware/deliveryAuth.js";
 
 const deliveryPartnerRouter = express.Router();
