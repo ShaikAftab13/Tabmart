@@ -1,13 +1,14 @@
 import { useContext, useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { CartContext } from "../context/CartContext";
-import { dummyDashboardOrdersData } from "../assets/assets";
 import Loading from '../components/Loading';
 import { CalendarIcon, ChevronRightIcon, Package2Icon, PackageIcon } from "lucide-react";
+import api from "../config/api";
+import toast from "react-hot-toast";
 
 function MyOrders() {
     const [orders, setOrders] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [activeTab, setActiveTab] = useState("all");
     const [searchParams, setSearchParams] = useSearchParams();
 
@@ -15,8 +16,16 @@ function MyOrders() {
     const { clearCart } = useContext(CartContext);
 
     const fetchOrders = async () => {
-        setOrders(dummyDashboardOrdersData);
-        setLoading(false);
+        setLoading(true);
+        try {
+            const params = activeTab !== "all" ? `?status=${activeTab}` : "";
+            const { data } = await api.get(`/orders/${params}`);
+            setOrders(data.orders);
+        } catch(err) {
+            toast.error(err.response?.data?.message || err?.message);
+        } finally {
+            setLoading(false);
+        }
     }
 
     useEffect(() => {
@@ -63,8 +72,8 @@ function MyOrders() {
                                 setActiveTab(tab);
                             }}
                             className={`px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all duration-300 relative ${activeTab === tab
-                                    ? "bg-app-forest text-white shadow-sm shadow-app-forest/10"
-                                    : "bg-white/60 text-gray-600 border border-gray-200/80 hover:bg-white hover:text-app-forest hover:border-gray-300"
+                                ? "bg-app-forest text-white shadow-sm shadow-app-forest/10"
+                                : "bg-white/60 text-gray-600 border border-gray-200/80 hover:bg-white hover:text-app-forest hover:border-gray-300"
                                 }`}
                         >
                             {tab === "all" ? "All Orders" : tab}
@@ -98,7 +107,7 @@ function MyOrders() {
                             </Link>
                         </div>
                     ) : (
-                        <div onClick={() => window.scrollTo({top: 0,behavior: "smooth"})} className="space-y-5">
+                        <div onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="space-y-5">
                             {orders.map(order => (
                                 <Link
                                     key={order._id}

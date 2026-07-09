@@ -1,55 +1,97 @@
-import { createContext, useEffect, useState } from "react"
+import { createContext, useContext, useEffect, useState } from "react";
+import api from "../config/api";
+import { AuthContext } from "./AuthContext";
 
 export const CartContext = createContext();
 
-const CartContextProvider = (props) => {
+const CartContextProvider = ({ children }) => {
 
-    const [items, setItems] = useState(() => {
-        const saved = localStorage.getItem('app_cart');
-        return saved ? JSON.parse(saved) : [];
-    });
+    const { user } = useContext(AuthContext);
 
+    const [items, setItems] = useState([]);
     const [isCartOpen, setIsCartOpen] = useState(false);
 
-    useEffect(() => {
-        localStorage.setItem('app_cart', JSON.stringify(items));
-    }, [items]);
-
-    const addToCart = (product, quantity = 1) => {
-        setItems(prev => {
-            const existing = prev.find(item => item.product._id === product._id);
-            if (existing)
-                return prev.map(item => item.product._id === product._id ? { ...item, quantity: item.quantity + quantity } : item);
-            return [...prev, { product, quantity }];
-        })
-        setIsCartOpen(true);
-    }
-
-    const removeFromCart = (productId) => {
-        setItems(prev => prev.filter(item => item.product._id !== productId));
-    }
-
-    const updateQuantity = (productId, quantity) => {
-        if (quantity <= 0) {
-            removeFromCart(productId);
-            return;
+    const fetchCart = async () => {
+        try {
+            const { data } = await api.get("/cart");
+            setItems(data);
+        } catch (err) {
+            console.error("Failed to fetch cart:", err);
+            setItems([]);
         }
+    };
 
-        setItems(prev => prev.map(item => item.product._id === productId ? { ...item, quantity } : item))
-    }
+    useEffect(() => {
+        if(user) {
+            fetchCart();
+        } else {
+            setItems([]);
+        }
+    }, [user]);
 
-    const clearCart = () => {
-        setItems([]);
-        setIsCartOpen(false);
-    }
+    const addToCart = async (product, quantity = 1) => {
+        try {
+            const { data } = await api.post("/cart/add", {
+                productId: product._id,
+                quantity,
+            });
 
-    const cartCount = items.reduce((sum, item) => {
-        return sum + item.quantity
-    }, 0)
+            setItems(data);
+            setIsCartOpen(true);
+        } catch (err) {
+            console.error("Failed to add item:", err);
+        }
+    };
 
-    const cartTotal = items.reduce((sum, item) => {
-        return sum + item.product.price * item.quantity;
-    }, 0)
+    const removeFromCart = async (productId) => {
+        try {
+            const { data } = await api.delete("/cart/remove", {
+                data: { productId },
+            });
+
+            setItems(data);
+        } catch (err) {
+            console.error("Failed to remove item:", err);
+        }
+    };
+
+    const updateQuantity = async (productId, quantity) => {
+        try {
+            if (quantity <= 0) {
+                await removeFromCart(productId);
+                return;
+            }
+
+            const { data } = await api.put("/cart/update", {
+                productId,
+                quantity,
+            });
+
+            setItems(data);
+        } catch (err) {
+            console.error("Failed to update quantity:", err);
+        }
+    };
+
+    const clearCart = async () => {
+        try {
+            await api.delete("/cart/clear");
+            setItems([]);
+            setIsCartOpen(false);
+        } catch (err) {
+            console.error("Failed to clear cart:", err);
+        }
+    };
+
+    const cartCount = items.reduce(
+        (sum, item) => sum + item.quantity,
+        0
+    );
+
+    const cartTotal = items.reduce(
+        (sum, item) => sum + item.product.price * item.quantity,
+        0
+    );
 
     const value = {
         items,
@@ -61,12 +103,14 @@ const CartContextProvider = (props) => {
         cartTotal,
         isCartOpen,
         setIsCartOpen,
+        fetchCart,
     };
 
     return (
         <CartContext.Provider value={value}>
-            {props.children}
-        </CartContext.Provider>)
-}
+            {children}
+        </CartContext.Provider>
+    );
+};
 
 export default CartContextProvider;

@@ -1,15 +1,27 @@
 import { Outlet, useNavigate } from "react-router-dom";
 import { LogOutIcon, TruckIcon } from "lucide-react";
 import { useEffect, useState } from "react";
-import { dummyDeliveryPartnerData } from "../../assets/assets";
+import api from "../../config/api"
 
 export default function DeliveryLayout() {
     const navigate = useNavigate();
     const [partner, setPartner] = useState(null);
 
-    useEffect(() => {
-        setPartner(dummyDeliveryPartnerData[0]);
-    }, []);
+        useEffect(() => {
+            const fetchPartner = async () => {
+                try {
+                    const { data } = await api.get("/delivery/partnerUser");
+
+                    setPartner(data.partner);
+
+                } catch (error) {
+                    navigate("/delivery/login");
+                }
+            };
+
+            fetchPartner();
+
+        }, [navigate]);
 
     const handleLogout = () => {
         navigate("/delivery/login");

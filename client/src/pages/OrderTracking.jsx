@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { dummyDashboardOrdersData } from "../assets/assets";
 import Loading from "../components/Loading";
 import { ArrowLeftIcon, Dot, MapPinIcon, PhoneIcon } from "lucide-react";
 import OrderOTP from "../components/OrderTracking/OrderOTP";
 import LiveMap from "../components/OrderTracking/LiveMap";
 import OrderTimeLine from "../components/OrderTracking/OrderTimeLine";
+import api from "../config/api"
 
 function OrderTracking() {
 
@@ -16,9 +16,43 @@ function OrderTracking() {
     const [liveLocation, setLiveLocation] = useState(null);
 
     useEffect(() => {
-        setOrder(dummyDashboardOrdersData.find(order => order._id === id));
-        setLoading(false);
+        const fetchOrderTracking = async () => {
+            try {
+                const { data } = await api.get(`/orders/${id}`);
+                setOrder(data.order);
+            } catch (err) {
+                navigate("/orders");
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchOrderTracking();
     }, [id])
+
+    //live location every 10sec
+    useEffect(() => {
+        if (!order || ["Delivered", "Cancelled", "Placed"].includes(order.status)) return;
+
+        const fetchLocation = async () => {
+            try {
+                const { data } = await api.get(`/orders/${id}/location`);
+                if (data.liveLocation?.lat && data.liveLocation?.lng && data.liveLocation.updatedAt) {
+                    setLiveLocation({
+                        lat: data.liveLocation.lat,
+                        lng: data.liveLocation.lng
+                    })
+                }
+                if (data.status && data.status != order.status) {
+                    setOrder(prev => prev ? {...prev, status: data.status} : prev)
+                }
+            } catch {
+
+            }
+        }
+        fetchLocation();
+        const interval = setInterval(fetchLocation, 10000);
+        return () => clearInterval(interval);
+    }, [id, order?.status]);
 
     if (loading) return <Loading />;
     if (!order) return null;
@@ -42,7 +76,7 @@ function OrderTracking() {
         <div className="max-w-7xl mx-auto px-4 py-8 text-gray-800 antialiased">
             <div className="space-y-6">
                 <button
-                    className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors" 
+                    className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
                     onClick={() => navigate('/orders')}
                 >
                     <ArrowLeftIcon className="w-4 h-4" /> Back to Orders

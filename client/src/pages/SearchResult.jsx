@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react"
 import { useSearchParams, Link } from "react-router-dom";
-import { dummyProducts } from "../assets/assets";
 import { Home, Search } from "lucide-react";
 import Loading from "../components/Loading";
 import ProductCard from "../components/ProductCard";
+import toast from "react-hot-toast";
+import api from "../config/api";
 
 function SearchResult() {
 
@@ -15,8 +16,18 @@ function SearchResult() {
     useEffect(() => {
         if (!query) return;
         setLoading(true);
-        setProducts(dummyProducts.filter(products => products.name.toLowerCase().includes(query.toLowerCase())));
-        setLoading(false);
+        const fetchSearchQuery = async () => {
+            try {
+                const { data } = await api.get(`/products?search=${encodeURIComponent(query)}`);
+                setProducts(data.products);
+            } catch (err) {
+                toast.error(err.response?.data?.message || err?.message);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        fetchSearchQuery();
     }, [query])
 
     return (
@@ -42,7 +53,7 @@ function SearchResult() {
                     <p className="mt-2 text-sm text-gray-500">{loading ? "Searching..." : `${products.length} items found`}</p>
                 </div>
                 {/* Results */}
-                {loading ? <Loading /> : products.length ===     0 ? (
+                {loading ? <Loading /> : products.length === 0 ? (
                     <div className="flex flex-col items-center justify-center text-center py-12 px-4 border-2 border-dashed border-gray-200 rounded-lg bg-white">
                         <Search className="mx-auto h-12 w-12 text-gray-400 mb-4" />
                         <h2 className="mt-2 text-lg font-medium text-gray-900">No results found</h2>

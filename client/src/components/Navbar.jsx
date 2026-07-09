@@ -12,15 +12,13 @@ import {
     ShieldIcon,
     LogOutIcon
 } from "lucide-react";
-import { toast } from 'react-hot-toast';
 import { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { CartContext } from "../context/CartContext";
-import axios from 'axios';
+import { AuthContext } from "../context/AuthContext";
 
 function Navbar() {
-    const user = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : null;
-    const backendURL = import.meta.env.VITE_BACKEND_URL;
+    const { user, logout } = useContext(AuthContext);
 
     const { cartCount, setIsCartOpen } = useContext(CartContext);
 
@@ -41,14 +39,7 @@ function Navbar() {
 
     const handleLogOut = async () => {
         setUserMenuOpen(false);
-        try {
-            const { data } = await axios.post(backendURL + '/api/auth/logout', {}, { withCredentials: true });
-            localStorage.removeItem("user");
-            navigate('/');
-            toast.success("Logged out");
-        } catch (e) {
-            toast.error(e.response?.data?.message);
-        }
+        await logout();
     }
 
     return (

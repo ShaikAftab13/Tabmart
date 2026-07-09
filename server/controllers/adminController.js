@@ -4,7 +4,7 @@ import User from "../models/userModel.js";
 import DeliveryPartner from "../models/deliveryPartnerModel.js";
 import bcrypt from "bcrypt";
 
-// GET /api/admin -get admin dashboard data
+// GET /api/admin/stats -get admin dashboard data
 export const getAdminStats = async (req, res) => {
     const [totalOrders, totalUsers, totalProducts, outOfStock, totalPartners, recentOrders] = await Promise.all([
         Order.countDocuments({
@@ -25,6 +25,7 @@ export const getAdminStats = async (req, res) => {
             .populate("userId", "name email")
             .populate("deliveryPartnerId", "name phone")
     ]);
+
     res.json({ totalOrders, totalUsers, totalProducts, outOfStock, totalPartners, recentOrders })
 }
 
@@ -61,14 +62,12 @@ export const updateDeliveryPartner = async (req, res) => {
         if (name) data.name = name;
         if (phone) data.phone = phone;
         if (vehicleType) data.vehicleType = vehicleType;
-        if (isActive !== undefined) {
-            data.isActive = isActive;
-        }
+        data.isActive = isActive
 
         const partner = await DeliveryPartner.findByIdAndUpdate(
             req.params.id,
             data,
-            { new: true }
+            { returnDocument: "after" }
         );
 
         if (!partner) {
@@ -99,6 +98,19 @@ export const assignDeliveryPartner = async (req, res) => {
             return res.status(404).json({ message: "Delivery partner not found" });
         }
 
+        const activeOrders = await Order.countDocuments({
+            deliveryPartnerId: partnerId,
+            status: {
+                $in: ["Assigned", "Picked Up", "Out for Delivery"]
+            }
+        });
+
+        if (activeOrders >= 3) {
+            return res.status(400).json({
+                message: "Delivery partner already has maximum active deliveries"
+            });
+        }
+
         const otp = String(Math.floor(100000 + Math.random() * 900000));
 
         let status = order.status;
@@ -125,7 +137,7 @@ export const assignDeliveryPartner = async (req, res) => {
                 status,
                 statusHistory: history
             },
-            { new: true }
+            { returnDocument: "after" }
         );
 
         return res.json({ order: updatedOrder });

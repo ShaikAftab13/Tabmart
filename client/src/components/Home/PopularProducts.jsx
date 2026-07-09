@@ -1,13 +1,17 @@
 import { useEffect, useState } from "react";
-import { dummyProducts } from "../../assets/assets";
 import { Link } from "react-router-dom";
 import ProductCard from "../ProductCard";
+import api from "../../config/api";
 
 function PopularProducts() {
     const [products, setProducts] = useState([]);
 
     useEffect(() => {
-        setProducts(dummyProducts.slice(0, 10));
+        const fetchPopularProducts = async () => {
+            const { data } = await api.get("/products?limit=8&sort=rating");
+            setProducts(data.products);
+        }
+        fetchPopularProducts();
     }, []);
 
     return (

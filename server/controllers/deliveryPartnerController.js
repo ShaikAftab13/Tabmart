@@ -1,5 +1,7 @@
 import DeliveryPartner from "../models/deliveryPartnerModel.js";
 import Order from "../models/orderModel.js";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken"
 const generateToken = (id) => {
     return jwt.sign(
         {
@@ -19,6 +21,15 @@ const cookieOptions = {
     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
     maxAge: 30 * 24 * 60 * 60 * 1000
 };
+
+export const getPartnerUser = async (req, res) => {
+    try {
+        res.status(200).json({ partner: req.partner });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 // POST /api/delivery/login Login Delivery Partner
 export const loginPartner = async (req, res) => {
     const { email, password } = req.body;
@@ -49,6 +60,22 @@ export const loginPartner = async (req, res) => {
     delete partnerData.password;
 
     return res.json({ partner: partnerData });
+}
+
+export const logoutPartner = async (req, res) => {
+    try {
+        res.clearCookie('deliveryToken', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+        })
+
+        return res.status(200).json({ message: "Delivery Partner Logged Out" });
+    } catch (e) {
+        return res.status(500).json({
+            message: "Internal Server Error"
+        })
+    }
 }
 
 // GET /api/delivery/my-deliveries Get assigned deliveries
@@ -186,7 +213,7 @@ export const updateDeliveryStatus = async (req, res) => {
                 }
             }
         },
-        { new: true }
+        { returnDocument: "after" }
     );
 
     res.json({ order: updatedOrder });
@@ -218,7 +245,7 @@ export const updateLocation = async (req, res) => {
                 updatedAt: new Date()
             }
         },
-        { new: true }
+        { returnDocument: "after" }
     );
 
     res.json({

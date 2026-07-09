@@ -1,15 +1,32 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BikeIcon } from "lucide-react";
 import Login_banner from "../../assets/Login_Banner.jpg";
-
+import { toast } from "react-hot-toast"
+import api from "../../config/api"
+import { useNavigate } from "react-router-dom";
 export default function DeliveryLogin() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
+        try {
+            await api.post("/delivery/login", { email, password });
+            toast.success("Login successful");
+            console.log("Before navigation");
 
+    navigate("/delivery");
+
+    console.log("After navigation");
+
+        } catch (err) {
+            toast.error(err.response?.data?.message || err?.message)
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (

@@ -30,13 +30,6 @@ const userSchema = new mongoose.Schema(
             type: String,
             default: "",
         },
-
-        addresses: [
-            {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "Address"
-            }
-        ]
     },
     {
         timestamps: true,

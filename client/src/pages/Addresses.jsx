@@ -1,12 +1,16 @@
-import { useEffect, useState } from "react"
-import { dummyAddressData } from "../assets/assets";
+import { useContext, useEffect, useState } from "react";
 import { MapPinIcon, PlusIcon } from "lucide-react";
 import Loading from "../components/Loading";
 import AddressCard from "../components/AddressCard";
 import AddressFrom from "../components/AddressFrom";
+import toast from "react-hot-toast";
+import { AuthContext } from "../context/AuthContext";
+import api from "../config/api";
 
 
 function Addresses() {
+
+    const { updateUser } = useContext(AuthContext);
 
     const [addresses, setAddresses] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -20,17 +24,68 @@ function Addresses() {
         setEditingId(null);
     }
 
+    const getLocation = (retries = 3) => {
+        return new Promise((resolve, reject) => {
+
+            // Check if browser supports Geolocation
+            if (!navigator.geolocation) {
+                reject(new Error("Geolocation not supported"));
+                return;
+            }
+
+            const attempt = () => {
+                navigator.geolocation.getCurrentPosition(
+
+                    (position) => {
+                        resolve({
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude,
+                        });
+                    },
+
+                    (error) => {
+                        if (retries > 0) {
+                            retries--;
+                            setTimeout(attempt, 1000);
+                        } else {
+                            reject(error.message || "Failed to get location after retries");
+                        }
+                    },
+                    {
+                        enableHighAccuracy: false,
+                        timeout: 15000,
+                        maximumAge: 60000
+                    }
+                );
+            };
+
+            attempt();
+        });
+    };
+
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        // edit
-        if (editingId) {
-            setAddresses(prev => prev.map(addr => addr._id === editingId ? { ...addr, ...form } : addr));
-            setShowForm(false);
-        }
-        // add
-        else {
-            setAddresses(prev => [...prev, { _id: Date.now().toString(), ...form }]);
-            setShowForm(false)
+        try {
+            const coords = await getLocation();
+            const payload = { ...form, ...coords };
+
+            if (editingId) {
+                const { data } = await api.put(`/addresses/${editingId}`, payload);
+                setAddresses(data.addresses);
+                updateUser({ addresses: data.addresses });
+                toast.success("Address updated!");
+                setShowForm(false);
+            } else {
+                const { data } = await api.post('/addresses', payload);
+                setAddresses(data.addresses);
+                updateUser({ addresses: data.addresses });
+                toast.success("Address added!");
+                setShowForm(false);
+            }
+
+        } catch (err) {
+            toast.error(err.response?.data?.message || err?.message);
         }
     }
 
@@ -41,8 +96,18 @@ function Addresses() {
     }
 
     useEffect(() => {
-        setAddresses(dummyAddressData);
-        setLoading(false);
+        const fetchAddresses = async () => {
+            try {
+                const { data } = await api.get("/addresses");
+                setAddresses(data.addresses);
+            } catch (err) {
+                toast.error(err.response?.data?.message || err?.message);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        fetchAddresses();
     }, [])
 
     return (

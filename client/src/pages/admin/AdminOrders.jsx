@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { TruckIcon } from "lucide-react";
 import toast from "react-hot-toast";
 import Loading from "../../components/Loading";
-import { dummyDashboardOrdersData, dummyDeliveryPartnerData } from "../../assets/assets";
+import { dummyDeliveryPartnerData } from "../../assets/assets";
+import api from "../../config/api";
 
 export default function AdminOrders() {
 
@@ -13,13 +14,25 @@ export default function AdminOrders() {
     const [selectedPartner, setSelectedPartner] = useState("");
 
     const fetchOrders = async () => {
-        setOrders(dummyDashboardOrdersData)
-        setTimeout(() => setLoading(false), 1000)
+        try {
+            const { data } = await api.get("/orders/all");
+            setOrders(data.orders);
+        } catch (err) {
+            toast.error(err.response?.data?.message || err?.message);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const fetchPartners = async () => {
-        setPartners(dummyDeliveryPartnerData)
-        setTimeout(() => setLoading(false), 1000)
+        try {
+            const { data } = await api.get("/admin/delivery-partners");
+            setPartners(data.partners.filter(p => p.isActive));
+        } catch (err) {
+            toast.error(err.response?.data?.message || err?.message);
+        } finally {
+            setLoading(false);
+        }
     };
 
     useEffect(() => {
@@ -28,14 +41,30 @@ export default function AdminOrders() {
     }, []);
 
     const handleStatusChange = async (id, newStatus) => {
-        console.log(id, newStatus);
+        try {
+            const { data } = await api.put(`/orders/${id}/status`, {status: newStatus});
+            toast.success("Order status updated");
+            fetchOrders();
+        } catch (err) {
+            toast.error(err.response?.data?.message || err?.message);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleAssign = async () => {
-        if (!assignModal || !selectedPartner) return;
-        toast.success("Delivery partner assigned!");
-        setAssignModal(null);
-        setSelectedPartner("");
+        if(!assignModal || !selectedPartner) return;
+        try {
+            const {data} = await api.put(`/admin/orders/${assignModal}/assign`, {partnerId: selectedPartner});
+            toast.success("Delivery Partner Assigned");
+            setAssignModal(null);
+            setSelectedPartner("");
+            fetchOrders();
+        } catch(err) {
+            toast.error(err.response?.data?.message || "Failed");
+        } finally {
+            setLoading(false);
+        }
     };
 
     const statusOptions = ["Placed", "Confirmed", "Assigned", "Packed", "Out for Delivery", "Delivered", "Cancelled"];
@@ -81,19 +110,19 @@ export default function AdminOrders() {
                                             <p className="text-xs text-zinc-500">{new Date(order.createdAt).toLocaleString()}</p>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <p className="font-medium text-zinc-900">{order.user?.name || "Unknown User"}</p>
-                                            <p className="text-xs text-zinc-500">{order.user?.email || "No email"}</p>
+                                            <p className="font-medium text-zinc-900">{order.userId?.name || "Unknown User"}</p>
+                                            <p className="text-xs text-zinc-500">{order.userId?.email || "No email"}</p>
                                         </td>
                                         <td className="px-6 py-4 font-medium">₹{order.total.toFixed(2)}</td>
                                         <td className="px-6 py-4">
-                                            {order.deliveryPartner ? (
+                                            {order.deliveryPartnerId ? (
                                                 <div className="flex items-center gap-2">
                                                     <div className="size-6 rounded-full bg-app-green flex-center">
-                                                        <span className="text-white text-[10px] font-semibold">{order.deliveryPartner.name?.charAt(0)}</span>
+                                                        <span className="text-white text-[10px] font-semibold">{order.deliveryPartnerId.name?.charAt(0)}</span>
                                                     </div>
                                                     <div>
-                                                        <p className="text-xs font-medium text-zinc-900">{order.deliveryPartner.name}</p>
-                                                        <p className="text-[10px] text-zinc-500">{order.deliveryPartner.phone}</p>
+                                                        <p className="text-xs font-medium text-zinc-900">{order.deliveryPartnerId.name}</p>
+                                                        <p className="text-[10px] text-zinc-500">{order.deliveryPartnerId.phone}</p>
                                                     </div>
                                                 </div>
                                             ) : (

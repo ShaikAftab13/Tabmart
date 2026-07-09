@@ -1,14 +1,15 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Login_banner from "../assets/Login_banner.jpg";
 import { Link } from 'react-router-dom';
 import { BikeIcon, Loader2, LockIcon, MailIcon, UserIcon } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
+import { AuthContext } from '../context/AuthContext';
 
 function Login() {
 
-    const backendURL = import.meta.env.VITE_BACKEND_URL;
+    const { login, register } = useContext(AuthContext);
 
     const [isLoginState, setIsLoginState] = useState(true);
     const [name, setName] = useState('');
@@ -20,29 +21,13 @@ function Login() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
         if (isLoginState) {
-            try {
-                const { data } = await axios.post(backendURL + '/api/auth/login', { email, password }, { withCredentials: true });
-                navigate('/');
-                localStorage.setItem("user", JSON.stringify(data.user));
-                toast.success(data.message);
-            } catch (err) {
-                toast.error(err.response?.data?.message)
-            } finally {
-                setLoading(false);
-            }
+            await login(email, password);
         } else {
-            try {
-                const { data } = await axios.post(backendURL + '/api/auth/register', { name, email, password }, { withCredentials: true });
-                navigate('/');
-                localStorage.setItem("user", JSON.stringify(data.user));
-                toast.success(data.message);
-            } catch (err) {
-                toast.error(err.response?.data?.message)
-            } finally {
-                setLoading(false);
-            }
+            await register(name, email, password);
         }
+        setLoading(false);
     }
 
     return (

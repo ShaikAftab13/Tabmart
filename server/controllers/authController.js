@@ -36,6 +36,32 @@ const getAdminStatus = (email) => {
     return adminEmails.includes(email.toLowerCase());
 };
 
+
+export const getCurrentUser = async (req, res) => {
+    const user = await User.findById(req.user.id)
+        .select("-password");
+
+    const addresses = await Address.find({
+        userId: req.user.id
+    });
+
+    if (!user) {
+        return res.status(404).json({
+            message: "User not found"
+        });
+    }
+
+    const adminEmails = process.env.ADMIN_EMAILS
+        ? process.env.ADMIN_EMAILS.split(",").map(e => e.trim().toLowerCase())
+        : [];
+
+    const isAdmin = adminEmails.includes(user.email.toLowerCase());
+
+    res.json({
+        user: { ...user.toObject(), addresses, isAdmin }
+    });
+};
+
 // Register - POST /api/auth/register
 export const register = async (req, res) => {
     try {
@@ -109,7 +135,7 @@ export const login = async (req, res) => {
 
         const user = await User.findOne({
             email: normalizedEmail
-        }).populate("addresses");
+        })
 
         if (!user) {
             return res.status(401).json({

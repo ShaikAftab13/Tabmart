@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { PlusIcon, EditIcon, XIcon } from "lucide-react";
 import Loading from "../../components/Loading";
-import { dummyProducts } from "../../assets/assets";
+import { toast } from "react-hot-toast";
+import api from "../../config/api"
 
 export default function AdminProducts() {
 
@@ -10,10 +11,14 @@ export default function AdminProducts() {
     const [loading, setLoading] = useState(true);
 
     const fetchProducts = async () => {
-        setProducts(dummyProducts);
-        setTimeout(() => {
+        try {
+            const { data } = await api.get("/products");
+            setProducts(data.products);
+        } catch (err) {
+            toast.error(err.response?.data?.message || err?.message);
+        } finally {
             setLoading(false);
-        }, 1000);
+        }
     };
 
     useEffect(() => {
@@ -22,7 +27,13 @@ export default function AdminProducts() {
 
     const handleMarkOutOfStock = async (id, name) => {
         if (!window.confirm(`Are you sure you want to mark "${name}" as out of stock?`)) return;
-        console.log(id);
+        try {
+            await api.delete(`/products/${id}`);
+            toast.success(`Product ${name} marked as out of stock`);
+            fetchProducts();
+        } catch (err) {
+            toast.error(err.response?.data?.message || err?.message);
+        }
     };
 
     if (loading) return <Loading />

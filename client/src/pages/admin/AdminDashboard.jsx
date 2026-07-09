@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { PackageIcon, UsersIcon, ShoppingBagIcon, AlertTriangleIcon } from "lucide-react";
 import Loading from "../../components/Loading";
-import { dummyAdminDashboardData, statusColors } from "../../assets/assets";
+import { statusColors } from "../../assets/assets";
+import api from "../../config/api"
 
 export default function AdminDashboard() {
 
@@ -10,10 +11,16 @@ export default function AdminDashboard() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        setTimeout(() => {
-            setStats(dummyAdminDashboardData);
-            setLoading(false);
-        }, 1000);
+        const fetchStats = async () => {
+            try {
+                const { data } = await api.get("/admin/stats");
+                setStats(data);
+            } catch {
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchStats();
     }, []);
 
     const cards = stats
@@ -74,8 +81,8 @@ export default function AdminDashboard() {
                                     <tr key={order._id} className="hover:bg-zinc-50/50 transition-colors">
                                         <td className="px-6 py-4 font-mono text-xs text-zinc-500">#{order._id.slice(-6).toUpperCase()}</td>
                                         <td className="px-6 py-4">
-                                            <p className="font-medium text-zinc-900">{order.user?.name || "—"}</p>
-                                            <p className="text-xs text-zinc-500">{order.user?.email || ""}</p>
+                                            <p className="font-medium text-zinc-900">{order.userId?.name || "—"}</p>
+                                            <p className="text-xs text-zinc-500">{order.userId?.email || ""}</p>
                                         </td>
                                         <td className="px-6 py-4 text-zinc-600">{order.items?.length || 0} items</td>
                                         <td className="px-6 py-4 font-medium">₹{order.total?.toFixed(2)}</td>

@@ -21,6 +21,7 @@ import AdminDeliveryPartners from './pages/admin/AdminDeliveryPartners';
 import DeliveryLogin from './pages/delivery/DeliveryLogin';
 import DeliveryDashboard from './pages/delivery/DeliveryDashboard';
 import DeliveryLayout from './pages/delivery/DeliveryLayout';
+
 function App() {
   return (
     <div>

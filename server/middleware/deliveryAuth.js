@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import DeliveryPartner from "../models/deliveryPartnerModel.js";
 
 const deliveryAuth = async (req, res, next) => {
     try {

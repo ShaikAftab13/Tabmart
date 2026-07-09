@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { categoriesData, dummyProducts } from "../assets/assets";
+import { categoriesData } from "../assets/assets";
 import {
     ChevronDown,
     Home,
@@ -10,6 +10,8 @@ import {
 import ProductCard from "../components/ProductCard";
 import Loading from "../components/Loading";
 import FilterPanel from "../components/FilterPanel";
+import api from "../config/api";
+import toast from "react-hot-toast";
 
 function Products() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -28,16 +30,25 @@ function Products() {
     const fetchProducts = async () => {
         setLoading(true);
 
-        let filteredProducts = [...dummyProducts];
-
-        if (category) {
-            filteredProducts = filteredProducts.filter(
-                (prod) => prod.category === category
-            );
+        try {
+            const params = new URLSearchParams();
+            if (category) params.set('category', category);
+            if (organic) params.set('organic', organic);
+            if (sort) params.set('sort', sort);
+            if (page) params.set('page', page);
+            if (minPrice) params.set('minPrice', minPrice);
+            if (maxPrice) params.set('maxPrice', maxPrice);
+            params.set("page", String(page));
+            params.set("limit", 12);
+            const { data } = await api.get(`/products?${params.toString()}`);
+            setProducts(data.products);
+            setTotalPages(data.pages);
+        } catch (err) {
+            toast.error(err.response?.data?.message || err?.message);
+        } finally {
+            setLoading(false);
         }
 
-        setProducts(filteredProducts);
-        setLoading(false);
     };
 
     const updateFilter = (key, value) => {
@@ -132,7 +143,6 @@ function Products() {
                                     <SlidersHorizontal size={18} />
                                     Filters
                                 </button>
-
 
                                 {/* Sort */}
                                 <div className="relative">

@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PackageIcon, NavigationIcon } from "lucide-react";
 import OtpModal from "../../components/Delivery/OtpModal";
 import CancelModal from "../../components/Delivery/CancelModal";
 import DeliveryOrderCard from "../../components/Delivery/DeliveryOrderCard";
 import Loading from "../../components/Loading";
 import { dummyDashboardOrdersData } from "../../assets/assets";
+import toast from "react-hot-toast";
+import api from "../../config/api";
 
 export default function DeliveryDashboard() {
 
@@ -22,38 +24,104 @@ export default function DeliveryDashboard() {
     const [cancelModal, setCancelModal] = useState(null);
     const [cancelReason, setCancelReason] = useState("");
 
+    const watchIdRef = useRef(null);
     const fetchOrders = async () => {
         setLoading(true);
-        setOrders(dummyDashboardOrdersData);
-        setLoading(false);
+        try {
+            const { data } = await api.get(
+                `/delivery/my-deliveries?status=${tab}`
+            );
+
+            setOrders(data.orders);
+        } catch (err) {
+            toast.error(err.response?.data?.message || err?.message);
+        } finally {
+            setLoading(false);
+        }
     };
 
     useEffect(() => {
         fetchOrders();
-    }, []);
+    }, [tab]);
+
+    useEffect(() => {
+        const activeOrders = orders.filter(o =>
+            ["Assigned", "Packed", "Out for Delivery"].includes(o.status)
+        );
+        if (activeOrders.length == 0 || !tracking) {
+            if (watchIdRef.current != null) {
+                navigator.geolocation.clearWatch(watchIdRef.current);
+                watchIdRef.current = null;
+            }
+            return;
+        }
+
+        const sendLocation = (pos) => {
+            const { latitude: lat, longitude: lng } = pos.coords;
+            activeOrders.forEach(o => {
+                api.put(`delivery/my-deliveries/${o._id}/location`, { lat, lng }).catch(() => { })
+            })
+        }
+
+        watchIdRef.current = navigator.geolocation.watchPosition(
+            sendLocation, () => { }, {
+            enableHighAccuracy: true,
+            maximumAge: 10000
+        }
+        )
+
+        const interval = setInterval(() => {
+            navigator.geolocation.getCurrentPosition(sendLocation, () => { }, { enableHighAccuracy: true })
+        }, 10000);
+
+        return () => {
+            if (watchIdRef.current != null) {
+                navigator.geolocation.clearWatch(watchIdRef.current);
+                watchIdRef.current = null;
+            }
+        }
+    }, [orders, tracking]);
 
     const handleUpdateStatus = async (orderId, status) => {
-        console.log(orderId, status);
+        try {
+            await api.put(`/delivery/my-deliveries/${orderId}/status`, { status });
+            toast.success(`Status updated to ${status}`);
+            fetchOrders();
+        } catch (err) {
+            toast.error(err.response?.data?.message || err?.message);
+        }
     };
 
     const handleComplete = async () => {
         if (!otpModal || !otp) return;
         setSubmitting(true);
-        setTimeout(() => {
-            setSubmitting(false);
+        try {
+            await api.put(`/delivery/my-deliveries/${otpModal}/complete`, { otp });
+            toast.success(`Delivery Completed`);
             setOtpModal(null);
             setOtp("");
-        }, 1000);
+            fetchOrders();
+        } catch (err) {
+            toast.error(err.response?.data?.message || err?.message);
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     const handleCancel = async () => {
         if (!cancelModal) return;
         setSubmitting(true);
-        setTimeout(() => {
-            setSubmitting(false);
+        try {
+            await api.put(`/delivery/my-deliveries/${cancelModal}/cancel`, { reason: cancelReason});
+            toast.success(`Delivery Cancelled`);
             setCancelModal(null);
             setCancelReason("");
-        }, 1000);
+            fetchOrders();
+        } catch (err) {
+            toast.error(err.response?.data?.message || "Failed");
+        } finally {
+            setSubmitting(false);
+        }
     }
 
     return (

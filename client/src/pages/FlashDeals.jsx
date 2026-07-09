@@ -1,9 +1,9 @@
 import { useContext, useEffect, useState } from "react"
-import { dummyProducts } from "../assets/assets";
 import Loading from "../components/Loading";
 import { CartContext } from "../context/CartContext";
 import ProductCard from "../components/ProductCard";
-
+import api from "../config/api"
+import toast from "react-hot-toast";
 
 function FlashDeals() {
 
@@ -13,18 +13,25 @@ function FlashDeals() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        setLoading(true);
-
-        setProducts(dummyProducts.filter(prod => prod.stock > 0));
-
-        setLoading(false);
+        const fetchFlashDeals = async () => {
+            setLoading(true);
+            try {
+                const { data } = await api.get("/products/flash-deals");
+                setProducts(data.products);
+            } catch (err) {
+                toast.error(err.response?.data?.message || err?.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchFlashDeals();
     }, []);
 
     return (
         <section className="py-10">
             <div className="max-w-6xl mx-auto px-4">
                 {/* Banner */}
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-app-forest via-app-green to-app-forest px-6 py-10 mb-8"> 
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-app-forest via-app-green to-app-forest px-6 py-10 mb-8">
                     <div className="absolute inset-0 overflow-hidden">
                         <div className="absolute -top-10 -left-10 h-32 w-32 rounded-full bg-white/5 blur-2xl"></div>
                         <div className="absolute -bottom-10 -right-10 h-32 w-32 rounded-full bg-white/5 blur-2xl"></div>
@@ -87,7 +94,7 @@ function FlashDeals() {
                 </div> : (
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
                         {products.map(product => (
-                            <ProductCard key={product._id} product={product}/>
+                            <ProductCard key={product._id} product={product} />
                         ))}
                     </div>)
                 )}

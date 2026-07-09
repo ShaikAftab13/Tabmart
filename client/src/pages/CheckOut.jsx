@@ -1,19 +1,21 @@
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom"
 import { CartContext } from "../context/CartContext";
-import { dummyAddressData } from "../assets/assets";
 import { MapPinIcon, CheckIcon, CreditCardIcon, ArrowLeftIcon, ChevronRightIcon } from "lucide-react";
 import CheckoutAddress from "../components/Checkout/CheckoutAddress";
 import CheckoutPayment from "../components/Checkout/CheckoutPayment";
 import CheckoutReview from "../components/Checkout/CheckoutReview";
+import api from "../config/api";
+import toast from "react-hot-toast";
+import { AuthContext } from "../context/AuthContext";
 
 
 function CheckOut() {
 
     const navigate = useNavigate();
-    const { items, cartTotal } = useContext(CartContext);
+    const { items, cartTotal, clearCart } = useContext(CartContext);
 
-    const { user } = { user: { addresses: dummyAddressData } };
+    const { user } = useContext(AuthContext);
 
     const [step, setStep] = useState("address");
     const [loading, setLoading] = useState(false);
@@ -43,7 +45,30 @@ function CheckOut() {
 
     const handlePlaceOrder = async () => {
         setLoading(true);
-        navigate('/orders');
+        try {
+            const orderData = {
+                items: items.map((item) => ({
+                    product: item.product._id,
+                    quantity: item.quantity,
+                })),
+                shippingAddress: address,
+                paymentMethod
+            }
+
+            const { data } = await api.post("/orders", orderData);
+            if (data.url) {
+                window.location.href = data.url;
+                return;
+            }
+            clearCart();
+            toast.success("Order placed successfully");
+            navigate(`/orders/${data.order._id}`);
+        } catch (err) {
+            toast.error(err.response?.data?.message || err?.message);
+        } finally {
+            setLoading(false);
+            window.scrollTo({ top: 0, behavior: "auto" });
+        }
     }
 
     useEffect(() => {
@@ -63,17 +88,46 @@ function CheckOut() {
         }
     }, [])
 
-    if (items.length == 0)
+    if (items.length === 0)
         return (
-            <div>
-                <div>
-                    <h2>Your cart is empty</h2>
-                    <p>Add some products to checkout</p>
-                    <button onClick={() => navigate('/products')}>Browse Products</button>
+            <div className="min-h-screen bg-gradient-to-br from-app-cream via-white to-app-leaf/10 flex items-center justify-center px-4">
+                <div className="max-w-md w-full bg-white rounded-3xl shadow-lg border border-app-border p-10 text-center">
+
+                    <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-app-green/10">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-12 w-12 text-app-green"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={1.8}
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1 5h12m-9 0a1 1 0 100 2 1 1 0 000-2zm8 0a1 1 0 100 2 1 1 0 000-2"
+                            />
+                        </svg>
+                    </div>
+
+                    <h2 className="mt-6 text-3xl font-bold text-app-forest">
+                        Your Cart is Empty
+                    </h2>
+
+                    <p className="mt-3 text-gray-600">
+                        Looks like you haven't added any fresh groceries yet.
+                        Browse our products and fill your cart.
+                    </p>
+
+                    <button
+                        onClick={() => navigate("/products")}
+                        className="mt-8 w-full rounded-xl bg-app-green px-6 py-3 font-semibold text-white shadow-lg shadow-app-green/25 transition-all duration-300 hover:bg-app-forest hover:-translate-y-0.5"
+                    >
+                        Browse Products
+                    </button>
                 </div>
             </div>
-        )
-
+        );
     return (
         <div className="min-h-screen bg-app-cream py-6 px-4">
             <div className="max-w-5xl mx-auto">
@@ -102,14 +156,14 @@ function CheckOut() {
                         >
                             <button
                                 className={`flex items-center gap-2 text-sm font-medium transition-colors ${step === item.key
-                                        ? "text-app-green"
-                                        : "text-app-text-light"
+                                    ? "text-app-green"
+                                    : "text-app-text-light"
                                     }`}
                             >
                                 <span
                                     className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${step === item.key
-                                            ? "bg-app-green text-white"
-                                            : "bg-app-cream text-app-green border border-app-border"
+                                        ? "bg-app-green text-white"
+                                        : "bg-app-cream text-app-green border border-app-border"
                                         }`}
                                 >
                                     {item.icon}

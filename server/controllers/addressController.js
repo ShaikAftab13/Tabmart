@@ -77,14 +77,16 @@ export const updateAddress = async (req, res) => {
         const updatedAddress = await Address.findOneAndUpdate(
             { _id: req.params.id, userId: req.user.id },
             data,
-            { new: true }
+            { returnDocument: "after" }
         );
 
         if (!updatedAddress) {
             return res.status(404).json({ message: "Address not found" });
         }
 
-        res.json({ updatedAddress });
+        const addresses = await Address.find({ userId: req.user.id }).sort({ createdAt: 1 });
+
+        res.json({ addresses });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -95,7 +97,7 @@ export const deleteAddress = async (req, res) => {
     try {
         await Address.findOneAndDelete({ _id: req.params.id, userId: req.user.id });
 
-        const addresses = await Address.find({userId: req.user.id}).sort({ createdAt: 1 });
+        const addresses = await Address.find({ userId: req.user.id }).sort({ createdAt: 1 });
 
         res.json({ addresses });
     } catch (err) {

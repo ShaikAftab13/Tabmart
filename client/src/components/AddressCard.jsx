@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import {
     CheckCircle2,
     Home,
@@ -8,12 +8,24 @@ import {
     Trash2,
 } from "lucide-react";
 import { toast } from "react-hot-toast";
+import { AuthContext } from "../context/AuthContext";
+import api from "../config/api";
 
 function AddressCard({ addr, onEditHandler, setAddresses }) {
 
-    const handleDelete = (id) => {
-        setAddresses(prev => prev.filter(item => item._id !== id));
-        toast.success("Address deleted");
+    const { updateUser } = useContext(AuthContext);
+
+    const handleDelete = async (id) => {
+        try {
+            const isConfirmed = window.confirm("Are you sure you want to delete this address?");
+            if (!isConfirmed) return;
+            const { data } = await api.delete(`/addresses/${id}`);
+            setAddresses(data.addresses);
+            updateUser({ addresses: data.addresses });
+            toast.success("Address removed");
+        } catch (err) {
+            toast.error(err.response?.data?.message || err?.message);
+        }
     };
 
     const getIcon = () => {

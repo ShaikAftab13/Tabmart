@@ -25,7 +25,7 @@ function HomeCategories() {
                             onClick={() =>
                                 window.scrollTo({
                                     top: 0,
-                                    behavior: "smooth",
+                                    behavior: "auto",
                                 })
                             }
                             className="group shrink-0 w-28 sm:w-32"

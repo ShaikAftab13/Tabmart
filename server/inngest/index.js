@@ -228,7 +228,7 @@ const autoAssignRider = inngest.createFunction(
                         statusHistory: history,
                     },
                 },
-                { new: true }
+                { returnDocument: "after" }
             );
 
             return { assigned: true, riderId: availableRider.id, riderName: availableRider.name, orderId: orderId }

@@ -1,10 +1,11 @@
 import { useContext, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { CartContext } from "../context/CartContext";
-import { dummyProducts } from "../assets/assets";
 import Loading from "../components/Loading";
 import { ArrowLeftIcon, HomeIcon, LeafIcon, Star, Trash2Icon, ShoppingCart, ShieldCheck, Truck } from "lucide-react";
 import DummyReviewsSection from "../assets/DummyReviewsSection";
+import toast from "react-hot-toast";
+import api from "../config/api";
 
 function ProductPage() {
     const { id } = useParams();
@@ -18,15 +19,27 @@ function ProductPage() {
     useEffect(() => {
         setLoading(true);
         setLocalQuantity(1);
+        window.scrollTo({ top: 0, behavior: "auto" });
 
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        const fetchProduct = async () => {
+            try {
+                const { data } = await api.get(`/products/${id}`);
 
-        const product = dummyProducts.find(prod => prod._id === id);
+                setProduct(data.product);
 
-        setProduct(product);
-        if(product) setRelatedProducts(dummyProducts.filter(prod => prod._id !== id && prod.category === product.category));
+                const { data: relatedData } = await api.get(
+                    `/products?category=${data.product.category}`
+                );
 
-        setLoading(false);
+                setRelatedProducts(relatedData.products.filter(p => p._id !== id));
+            } catch (err) {
+                toast.error(err.response?.data?.message || err?.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProduct();
     }, [id])
 
     if (loading) return <Loading />;
@@ -35,7 +48,7 @@ function ProductPage() {
     const cartItem = items.find(item => item.product._id === product._id);
     const inCart = !!cartItem;
     const displayQuantity = inCart ? cartItem.quantity : localQuantity;
-    const categoryLabel = product.category.replace(/-/g, " ");
+    const categoryLabel = product?.category?.replace(/-/g, " ");
 
     const handleMinus = () => {
         if (inCart) {
