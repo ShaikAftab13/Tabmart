@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { BikeIcon } from "lucide-react";
-import Login_banner from "../../assets/Login_Banner.jpg";
+import Login_banner from "../../assets/Login_banner.jpg";
 import { toast } from "react-hot-toast"
 import api from "../../config/api"
 import { useNavigate } from "react-router-dom";
