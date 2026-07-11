@@ -22,7 +22,7 @@ const app = express();
 app.use(cors({
     origin: [
         'http://localhost:5173',
-        'https://tab-mart-app.vercel.app'
+        'https://tab-mart-server.vercel.app'
     ],
     credentials: true
 }));
