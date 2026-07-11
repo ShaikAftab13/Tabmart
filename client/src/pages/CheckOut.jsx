@@ -56,13 +56,52 @@ function CheckOut() {
             }
 
             const { data } = await api.post("/orders", orderData);
-            if (data.url) {
-                window.location.href = data.url;
+
+            if (paymentMethod === "card") {
+
+                const options = {
+                    key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+
+                    amount: data.razorpayOrder.amount,
+
+                    currency: data.razorpayOrder.currency,
+
+                    order_id: data.razorpayOrder.id,
+
+                    name: "TabMart",
+
+                    description: "Order Payment",
+
+                    handler: async function (response) {
+                        try {
+
+                            await api.post("/orders/verify-payment", {
+                                razorpay_order_id: response.razorpay_order_id,
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_signature: response.razorpay_signature,
+                            });
+
+                            clearCart();
+                            toast.success("Payment Successful");
+                            navigate(`/orders/${data.order._id}`);
+                        } catch (err) {
+                            toast.error(err.response?.data?.message || "Payment verification failed");
+                        }
+                    },
+                };
+
+                const razorpay = new window.Razorpay(options);
+                razorpay.open();
                 return;
+
+            } else {
+
+                clearCart();
+
+                toast.success("Order placed successfully");
+
+                navigate(`/orders/${data.order._id}`);
             }
-            clearCart();
-            toast.success("Order placed successfully");
-            navigate(`/orders/${data.order._id}`);
         } catch (err) {
             toast.error(err.response?.data?.message || err?.message);
         } finally {

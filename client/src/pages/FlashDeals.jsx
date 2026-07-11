@@ -57,14 +57,14 @@ function FlashDeals() {
 
                         <div className="mt-5 flex items-center justify-center gap-6 text-white">
                             <div>
-                                <p className="text-xl font-bold">50%+</p>
+                                <p className="text-xl font-bold">15%+</p>
                                 <p className="text-xs text-white/60">Discounts</p>
                             </div>
 
                             <div className="h-8 w-px bg-white/20"></div>
 
                             <div>
-                                <p className="text-xl font-bold">100+</p>
+                                <p className="text-xl font-bold">{products.length}+</p>
                                 <p className="text-xs text-white/60">Products</p>
                             </div>
 

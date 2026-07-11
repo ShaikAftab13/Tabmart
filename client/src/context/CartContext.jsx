@@ -22,7 +22,7 @@ const CartContextProvider = ({ children }) => {
     };
 
     useEffect(() => {
-        if(user) {
+        if (user) {
             fetchCart();
         } else {
             setItems([]);

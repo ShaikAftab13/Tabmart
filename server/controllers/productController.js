@@ -7,7 +7,7 @@ export const getFlashDeals = async (req, res) => {
     const productsWithDiscount = products.map(product => {
         const discount = product.originalPrice && product.price ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) : 0;
         return { ...product.toObject(), discount };
-    })
+    }).filter(product => product.discount > 15);
 
     return res.json({ products: productsWithDiscount.slice(0, 8) });
 }

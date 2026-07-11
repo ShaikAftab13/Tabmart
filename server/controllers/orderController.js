@@ -1,28 +1,26 @@
 import Product from "../models/productModel.js";
 import Order from "../models/orderModel.js";
 import { inngest } from "../inngest/index.js";
+import crypto from "crypto";
+import razorpay from "../config/razorpay.js";
 
 // POST /api/orders - Create Order
 export const createOrder = async (req, res) => {
     try {
         const { items, shippingAddress, paymentMethod } = req.body;
 
-        // Check if order items exist
         if (!items || items.length === 0) {
             return res.status(400).json({
-                message: "No order items"
+                message: "No order items",
             });
         }
 
-        // Get all product IDs
         const productIds = items.map(item => item.product);
 
-        // Fetch all products in one query
         const products = await Product.find({
-            _id: { $in: productIds }
+            _id: { $in: productIds },
         });
 
-        // Create lookup object
         const productMap = {};
 
         products.forEach(product => {
@@ -35,18 +33,18 @@ export const createOrder = async (req, res) => {
 
             if (!product) {
                 return res.status(404).json({
-                    message: `Product ${item.product} not found`
+                    message: `Product ${item.product} not found`,
                 });
             }
 
             if ((product.stock ?? 0) < item.quantity) {
                 return res.status(400).json({
-                    message: `${product.name} is out of stock`
+                    message: `${product.name} is out of stock`,
                 });
             }
         }
 
-        // Create order items using database values
+        // Create order items
         const orderItems = items.map(item => {
             const dbProduct = productMap[item.product.toString()];
 
@@ -61,17 +59,16 @@ export const createOrder = async (req, res) => {
         });
 
         // Calculate prices
-        const subTotal = orderItems.reduce(
+        const subtotal = orderItems.reduce(
             (sum, item) => sum + item.price * item.quantity,
             0
         );
 
-        const deliveryFee = subTotal > 99 ? 0 : 30;
+        const deliveryFee = subtotal > 99 ? 0 : 30;
 
-        const tax = Math.round(subTotal * 0.08 * 100) / 100;
+        const tax = Math.round(subtotal * 0.08 * 100) / 100;
 
-        const total =
-            Math.round((subTotal + deliveryFee + tax) * 100) / 100;
+        const total = Math.round((subtotal + deliveryFee + tax) * 100) / 100;
 
         // Create order
         const order = await Order.create({
@@ -79,7 +76,7 @@ export const createOrder = async (req, res) => {
             items: orderItems,
             shippingAddress,
             paymentMethod,
-            subtotal: subTotal,
+            subtotal,
             deliveryFee,
             tax,
             total,
@@ -92,43 +89,146 @@ export const createOrder = async (req, res) => {
             ],
         });
 
-        // Reduce stock
-        for (const item of orderItems) {
-            await Product.findByIdAndUpdate(
-                item.product,
-                {
-                    $inc: {
-                        stock: -item.quantity,
-                    },
-                }
-            );
+        // Card Payment
+        if (paymentMethod === "card") {
+
+            const razorpayOrder = await razorpay.orders.create({
+                amount: Math.round(total * 100),
+                currency: "INR",
+                receipt: order._id.toString(),
+                notes: {
+                    orderId: order._id.toString(),
+                    userId: req.user.id,
+                },
+            });
+
+            order.razorpayOrderId = razorpayOrder.id;
+            await order.save();
+
+            return res.status(201).json({
+                message: "Razorpay order created",
+                order,
+                razorpayOrder,
+            });
         }
 
-        for(const item of orderItems) {
+        // COD -> Reduce stock immediately
+        for (const item of orderItems) {
+            await Product.findByIdAndUpdate(item.product, {
+                $inc: {
+                    stock: -item.quantity,
+                },
+            });
+        }
+
+        for (const item of orderItems) {
             await inngest.send({
                 name: "inventory/stock.updated",
                 data: {
-                    productId: item.product
-                }
-            })
+                    productId: item.product,
+                },
+            });
         }
 
         await inngest.send({
             name: "order/placed",
             data: {
-                orderId: order._id
-            }
-        })
+                orderId: order._id,
+            },
+        });
 
-        if (paymentMethod === "card") {
-            // Create Stripe Payment Intent
-        }
-
-        return res.status(201).json({ message: "Order placed successfully", order });
+        return res.status(201).json({
+            message: "Order placed successfully",
+            order,
+        });
 
     } catch (err) {
         console.error(err);
-        return res.status(500).json({ message: err.message });
+        res.status(500).json({
+            message: err.message,
+        });
+    }
+};
+
+export const verifyPayment = async (req, res) => {
+    try {
+
+        const {
+            razorpay_order_id,
+            razorpay_payment_id,
+            razorpay_signature,
+        } = req.body;
+
+        const order = await Order.findOne({
+            razorpayOrderId: razorpay_order_id,
+        });
+
+        if (!order) {
+            return res.status(404).json({
+                message: "Order not found",
+            });
+        }
+
+        const generatedSignature = crypto
+            .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+            .update(
+                razorpay_order_id + "|" + razorpay_payment_id
+            )
+            .digest("hex");
+
+        if (generatedSignature !== razorpay_signature) {
+
+            order.paymentStatus = "Failed";
+            await order.save();
+
+            return res.status(400).json({
+                message: "Payment verification failed",
+            });
+        }
+
+        // Payment Success
+        order.isPaid = true;
+        order.paymentStatus = "Paid";
+        order.razorpayPaymentId = razorpay_payment_id;
+        order.paidAt = new Date();
+
+        await order.save();
+
+        // Reduce stock now
+        for (const item of order.items) {
+            await Product.findByIdAndUpdate(item.product, {
+                $inc: {
+                    stock: -item.quantity,
+                },
+            });
+        }
+
+        // Inngest events
+        for (const item of order.items) {
+            await inngest.send({
+                name: "inventory/stock.updated",
+                data: {
+                    productId: item.product,
+                },
+            });
+        }
+
+        await inngest.send({
+            name: "order/placed",
+            data: {
+                orderId: order._id,
+            },
+        });
+
+        return res.status(200).json({
+            message: "Payment verified successfully",
+            order,
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            message: error.message,
+        });
     }
 };
 
