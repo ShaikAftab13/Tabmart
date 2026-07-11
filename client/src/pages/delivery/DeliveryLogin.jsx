@@ -4,6 +4,7 @@ import Login_banner from "../../assets/Login_banner.jpg";
 import { toast } from "react-hot-toast"
 import api from "../../config/api"
 import { useNavigate } from "react-router-dom";
+
 export default function DeliveryLogin() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
