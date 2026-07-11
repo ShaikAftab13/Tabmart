@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import Login_banner from "../assets/Login_banner.jpg";
 import { Link } from 'react-router-dom';
 import { BikeIcon, Loader2, LockIcon, MailIcon, UserIcon } from 'lucide-react';
-import axios from 'axios';
 import { toast } from 'react-hot-toast';
 import { AuthContext } from '../context/AuthContext';
 
