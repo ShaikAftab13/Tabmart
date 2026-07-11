@@ -64,7 +64,7 @@ function CheckOut() {
 
                     amount: data.razorpayOrder.amount,
 
-                    currency: data.razorpayOrder.currency,
+                    currency: "INR",
 
                     order_id: data.razorpayOrder.id,
 
