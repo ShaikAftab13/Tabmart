@@ -69,6 +69,7 @@ export const logoutPartner = async (req, res) => {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+            partitioned: true
         })
 
         return res.status(200).json({ message: "Delivery Partner Logged Out" });

@@ -11,9 +11,6 @@ export default function DeliveryLayout() {
         const fetchPartner = async () => {
             try {
                 const { data } = await api.get("/delivery/partnerUser");
-
-                console.log("Partner API:", data);
-
                 setPartner(data.partner);
             } catch (error) {
                 console.log("Partner fetch failed:", error.response?.status);
