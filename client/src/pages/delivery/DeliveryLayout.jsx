@@ -7,21 +7,21 @@ export default function DeliveryLayout() {
     const navigate = useNavigate();
     const [partner, setPartner] = useState(null);
 
-        useEffect(() => {
-            const fetchPartner = async () => {
-                try {
-                    const { data } = await api.get("/delivery/partnerUser");
+    useEffect(() => {
+        const fetchPartner = async () => {
+            try {
+                const { data } = await api.get("/delivery/partnerUser");
 
-                    setPartner(data.partner);
+                setPartner(data.partner);
 
-                } catch (error) {
-                    navigate("/delivery/login");
-                }
-            };
+            } catch (error) {
+                navigate("/delivery/login");
+            }
+        };
 
-            fetchPartner();
+        fetchPartner();
 
-        }, [navigate]);
+    }, [navigate]);
 
     const handleLogout = () => {
         navigate("/delivery/login");
@@ -39,7 +39,11 @@ export default function DeliveryLayout() {
                         <span className="text-lg font-semibold text-app-green">TabMart Delivery</span>
                     </div>
                     <div className="flex items-center gap-3">
-                        <span className="text-sm font-medium text-zinc-600">{partner?.name}</span>
+                        {partner && (
+                            <span className="text-sm font-medium text-zinc-600">
+                                {partner.name}
+                            </span>
+                        )}
                         <button onClick={handleLogout} className="p-2 text-zinc-500 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
                             <LogOutIcon className="size-4" />
                         </button>
