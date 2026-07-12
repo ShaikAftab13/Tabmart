@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import api from "../config/api";
 import { AuthContext } from "./AuthContext";
+import { toast } from "react-hot-toast";
 
 export const CartContext = createContext();
 
@@ -31,6 +32,11 @@ const CartContextProvider = ({ children }) => {
 
     const addToCart = async (product, quantity = 1) => {
         try {
+            if (!user) {
+                toast.info("Please log in to add items to your cart.");
+                return;
+            }
+
             const { data } = await api.post("/cart/add", {
                 productId: product._id,
                 quantity,
@@ -45,6 +51,11 @@ const CartContextProvider = ({ children }) => {
 
     const removeFromCart = async (productId) => {
         try {
+            if (!user) {
+                toast.info("Please log in to manage your cart.");
+                return;
+            }
+
             const { data } = await api.delete("/cart/remove", {
                 data: { productId },
             });
@@ -57,6 +68,11 @@ const CartContextProvider = ({ children }) => {
 
     const updateQuantity = async (productId, quantity) => {
         try {
+            if (!user) {
+                toast.info("Please log in to manage your cart.");
+                return;
+            }
+
             if (quantity <= 0) {
                 await removeFromCart(productId);
                 return;
@@ -68,6 +84,7 @@ const CartContextProvider = ({ children }) => {
             });
 
             setItems(data);
+
         } catch (err) {
             console.error("Failed to update quantity:", err);
         }
@@ -75,6 +92,11 @@ const CartContextProvider = ({ children }) => {
 
     const clearCart = async () => {
         try {
+            if (!user) {
+                toast.info("Please log in to manage your cart.");
+                return;
+            }
+
             await api.delete("/cart/clear");
             setItems([]);
             setIsCartOpen(false);
