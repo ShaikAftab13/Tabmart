@@ -48,7 +48,7 @@ export const registerEmail = async (email, name) => {
                                             <table width="100%" cellpadding="0" cellspacing="0" style="margin:35px 0;">
                                                 <tr>
                                                     <td align="center">
-                                                        <a href="#"
+                                                        <a href="https://tabmart.vercel.app/"
                                                             style="
                                                                 background:#2E7D32;
                                                                 color:#ffffff;
