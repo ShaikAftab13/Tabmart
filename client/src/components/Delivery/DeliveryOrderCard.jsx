@@ -3,13 +3,17 @@ import { statusColors } from '../../assets/assets';
 
 export default function DeliveryOrderCard({ order, tab, handleUpdateStatus, setOtpModal, setCancelModal }) {
 
-    const user = typeof order.userId === "object"
-        ? order.userId
-        : {
-            name: "Customer",
-            email: "",
-            phone: ""
-        };
+    const user =
+        order.userId && typeof order.userId === "object"
+            ? order.userId
+            : {
+                name: "Customer",
+                email: "",
+                phone: ""
+            };
+
+    console.log("order.userId:", order.userId);
+    console.log("order:", order);
 
     return (
         <div key={order._id} className="bg-white rounded-2xl border border-app-border overflow-hidden">
