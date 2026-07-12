@@ -81,7 +81,7 @@ export default function AdminDeliveryPartners() {
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-3">
                                     <div className="size-10 rounded-full bg-app-green flex-center">
-                                        <span className="text-white font-semibold text-sm">{p.name.charAt(0)}</span>
+                                        <span className="text-white font-semibold text-sm">{p.name?.charAt(0)}</span>
                                     </div>
                                     <div>
                                         <p className="font-semibold text-zinc-900 text-sm">{p.name}</p>

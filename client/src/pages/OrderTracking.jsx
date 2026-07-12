@@ -122,7 +122,7 @@ function OrderTracking() {
                                 <div className="flex items-center gap-4">
                                     <div className="w-12 h-12 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-lg shadow-sm">
                                         <span>
-                                            {order.deliveryPartner.name.charAt(0).toUpperCase()}
+                                            {order.deliveryPartner?.name?.charAt(0).toUpperCase()}
                                         </span>
                                     </div>
                                     <div>

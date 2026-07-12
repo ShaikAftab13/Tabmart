@@ -163,7 +163,7 @@ export default function AdminOrders() {
                                         <label key={p._id} className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${selectedPartner === p._id ? "border-app-green bg-app-green/5" : "border-app-border hover:bg-app-cream"}`}>
                                             <input type="radio" name="partner" value={p._id} checked={selectedPartner === p._id} onChange={() => setSelectedPartner(p._id)} className="text-app-green" />
                                             <div className="size-8 rounded-full bg-app-green flex-center">
-                                                <span className="text-white text-xs font-semibold">{p.name.charAt(0)}</span>
+                                                <span className="text-white text-xs font-semibold">{p.name?.charAt(0)}</span>
                                             </div>
                                             <div>
                                                 <p className="text-sm font-medium text-zinc-900">{p.name}</p>
