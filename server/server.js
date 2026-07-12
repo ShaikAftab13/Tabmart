@@ -36,6 +36,8 @@ app.get("/", (req, res) => {
     res.send("API is running");
 });
 
+app.use("/api/inngest", serve({ client: inngest, functions }));
+
 app.use('/api/auth', authRouter);
 app.use('/api/products', productRouter);
 app.use('/api/upload', uploadRouter);
@@ -45,7 +47,6 @@ app.use('/api/admin', adminRouter);
 app.use('/api/delivery', deliveryPartnerRouter);
 app.use('/api/cart', cartRouter);
 
-app.use("/api/inngest", serve({ client: inngest, functions }));
 
 app.use((err, req, res, next) => {
     console.error("Error: ", err);
