@@ -39,7 +39,7 @@ export default function DeliveryLayout() {
                         <span className="text-lg font-semibold text-app-green">TabMart Delivery</span>
                     </div>
                     <div className="flex items-center gap-3">
-                        <span className="text-sm font-medium text-zinc-600">{partner.name}</span>
+                        <span className="text-sm font-medium text-zinc-600">{partner?.name}</span>
                         <button onClick={handleLogout} className="p-2 text-zinc-500 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
                             <LogOutIcon className="size-4" />
                         </button>
