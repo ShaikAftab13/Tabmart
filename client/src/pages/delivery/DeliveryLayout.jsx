@@ -21,7 +21,7 @@ export default function DeliveryLayout() {
 
         fetchPartner();
 
-    }, [navigate]);
+    }, []);
 
     const handleLogout = () => {
         navigate("/delivery/login");
