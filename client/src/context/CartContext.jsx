@@ -2,13 +2,14 @@ import { createContext, useContext, useEffect, useState } from "react";
 import api from "../config/api";
 import { AuthContext } from "./AuthContext";
 import { toast } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 export const CartContext = createContext();
 
 const CartContextProvider = ({ children }) => {
 
     const { user } = useContext(AuthContext);
-
+    const navigate = useNavigate();
     const [items, setItems] = useState([]);
     const [isCartOpen, setIsCartOpen] = useState(false);
 
@@ -32,39 +33,55 @@ const CartContextProvider = ({ children }) => {
 
     const addToCart = async (product, quantity = 1) => {
         try {
-            console.log("User:", user)
             if (!user) {
                 toast.custom((t) => (
                     <div
-                        className="bg-white shadow-2xl border border-app-border rounded-2xl p-4 w-[360px]"
+                        className={`${t.visible ? "animate-enter" : "animate-leave"
+                            } w-[360px] bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden`}
                     >
-                        <div className="flex items-start gap-3">
-                            <div className="w-10 h-10 rounded-full bg-app-green text-white flex items-center justify-center">
-                                🔒
-                            </div>
+                        <div className="h-1 bg-app-green"></div>
 
-                            <div className="flex-1">
-                                <h3 className="font-semibold text-app-green">
-                                    Login Required
-                                </h3>
+                        <div className="p-5">
+                            <div className="flex items-start gap-4">
+                                <div className="w-12 h-12 rounded-full bg-app-green/10 flex items-center justify-center text-2xl">
+                                    🔒
+                                </div>
 
-                                <p className="text-sm text-gray-500 mt-1">
-                                    Please log in to add products to your cart.
-                                </p>
+                                {/* Content */}
+                                <div className="flex-1">
+                                    <h3 className="text-lg font-semibold text-app-green">
+                                        Login Required
+                                    </h3>
 
-                                <button
-                                    onClick={() => {
-                                        toast.dismiss(t.id);
-                                        navigate("/login")
-                                    }}
-                                    className="mt-3 px-4 py-2 bg-app-green text-white rounded-lg hover:bg-app-green-light transition"
-                                >
-                                    Login Now
-                                </button>
+                                    <p className="text-sm text-gray-500 mt-1">
+                                        Sign in to add products to your cart and continue to checkout.
+                                    </p>
+
+                                    <div className="flex justify-end gap-3 mt-5">
+                                        <button
+                                            onClick={() => toast.dismiss(t.id)}
+                                            className="px-4 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100 transition"
+                                        >
+                                            Cancel
+                                        </button>
+
+                                        <button
+                                            onClick={() => {
+                                                toast.dismiss(t.id);
+                                                navigate("/login");
+                                            }}
+                                            className="px-5 py-2 rounded-lg bg-app-green text-white hover:bg-app-green-light transition"
+                                        >
+                                            Login
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                ));
+                ), {
+                    duration: 5000,
+                });
                 return;
             }
             const { data } = await api.post("/cart/add", {
@@ -84,35 +101,54 @@ const CartContextProvider = ({ children }) => {
             if (!user) {
                 toast.custom((t) => (
                     <div
-                        className="bg-white shadow-2xl border border-app-border rounded-2xl p-4 w-[360px]"
+                        className={`${t.visible ? "animate-enter" : "animate-leave"
+                            } w-[360px] bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden`}
                     >
-                        <div className="flex items-start gap-3">
-                            <div className="w-10 h-10 rounded-full bg-app-green text-white flex items-center justify-center">
-                                🔒
-                            </div>
+                        {/* Top Green Bar */}
+                        <div className="h-1 bg-app-green"></div>
 
-                            <div className="flex-1">
-                                <h3 className="font-semibold text-app-green">
-                                    Login Required
-                                </h3>
+                        <div className="p-5">
+                            <div className="flex items-start gap-4">
+                                {/* Icon */}
+                                <div className="w-12 h-12 rounded-full bg-app-green/10 flex items-center justify-center text-2xl">
+                                    🔒
+                                </div>
 
-                                <p className="text-sm text-gray-500 mt-1">
-                                    Please log in to manage your cart.
-                                </p>
+                                {/* Content */}
+                                <div className="flex-1">
+                                    <h3 className="text-lg font-semibold text-app-green">
+                                        Login Required
+                                    </h3>
 
-                                <button
-                                    onClick={() => {
-                                        toast.dismiss(t.id);
-                                        navigate("/login")
-                                    }}
-                                    className="mt-3 px-4 py-2 bg-app-green text-white rounded-lg hover:bg-app-green-light transition"
-                                >
-                                    Login Now
-                                </button>
+                                    <p className="text-sm text-gray-500 mt-1">
+                                        Sign in to manage your cart continue to checkout.
+                                    </p>
+
+                                    <div className="flex justify-end gap-3 mt-5">
+                                        <button
+                                            onClick={() => toast.dismiss(t.id)}
+                                            className="px-4 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100 transition"
+                                        >
+                                            Cancel
+                                        </button>
+
+                                        <button
+                                            onClick={() => {
+                                                toast.dismiss(t.id);
+                                                navigate("/login");
+                                            }}
+                                            className="px-5 py-2 rounded-lg bg-app-green text-white hover:bg-app-green-light transition"
+                                        >
+                                            Login
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                ));
+                ), {
+                    duration: 5000,
+                });
                 return;
             }
 
@@ -131,35 +167,54 @@ const CartContextProvider = ({ children }) => {
             if (!user) {
                 toast.custom((t) => (
                     <div
-                        className="bg-white shadow-2xl border border-app-border rounded-2xl p-4 w-[360px]"
+                        className={`${t.visible ? "animate-enter" : "animate-leave"
+                            } w-[360px] bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden`}
                     >
-                        <div className="flex items-start gap-3">
-                            <div className="w-10 h-10 rounded-full bg-app-green text-white flex items-center justify-center">
-                                🔒
-                            </div>
+                        {/* Top Green Bar */}
+                        <div className="h-1 bg-app-green"></div>
 
-                            <div className="flex-1">
-                                <h3 className="font-semibold text-app-green">
-                                    Login Required
-                                </h3>
+                        <div className="p-5">
+                            <div className="flex items-start gap-4">
+                                {/* Icon */}
+                                <div className="w-12 h-12 rounded-full bg-app-green/10 flex items-center justify-center text-2xl">
+                                    🔒
+                                </div>
 
-                                <p className="text-sm text-gray-500 mt-1">
-                                    Please log in to manage your cart.
-                                </p>
+                                {/* Content */}
+                                <div className="flex-1">
+                                    <h3 className="text-lg font-semibold text-app-green">
+                                        Login Required
+                                    </h3>
 
-                                <button
-                                    onClick={() => {
-                                        toast.dismiss(t.id);
-                                        navigate("/login")
-                                    }}
-                                    className="mt-3 px-4 py-2 bg-app-green text-white rounded-lg hover:bg-app-green-light transition"
-                                >
-                                    Login Now
-                                </button>
+                                    <p className="text-sm text-gray-500 mt-1">
+                                        Sign in to manage your cart and continue to checkout.
+                                    </p>
+
+                                    <div className="flex justify-end gap-3 mt-5">
+                                        <button
+                                            onClick={() => toast.dismiss(t.id)}
+                                            className="px-4 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100 transition"
+                                        >
+                                            Cancel
+                                        </button>
+
+                                        <button
+                                            onClick={() => {
+                                                toast.dismiss(t.id);
+                                                navigate("/login");
+                                            }}
+                                            className="px-5 py-2 rounded-lg bg-app-green text-white hover:bg-app-green-light transition"
+                                        >
+                                            Login
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                ));
+                ), {
+                    duration: 5000,
+                });
                 return;
             }
 
@@ -185,35 +240,54 @@ const CartContextProvider = ({ children }) => {
             if (!user) {
                 toast.custom((t) => (
                     <div
-                        className="bg-white shadow-2xl border border-app-border rounded-2xl p-4 w-[360px]"
+                        className={`${t.visible ? "animate-enter" : "animate-leave"
+                            } w-[360px] bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden`}
                     >
-                        <div className="flex items-start gap-3">
-                            <div className="w-10 h-10 rounded-full bg-app-green text-white flex items-center justify-center">
-                                🔒
-                            </div>
+                        {/* Top Green Bar */}
+                        <div className="h-1 bg-app-green"></div>
 
-                            <div className="flex-1">
-                                <h3 className="font-semibold text-app-green">
-                                    Login Required
-                                </h3>
+                        <div className="p-5">
+                            <div className="flex items-start gap-4">
+                                {/* Icon */}
+                                <div className="w-12 h-12 rounded-full bg-app-green/10 flex items-center justify-center text-2xl">
+                                    🔒
+                                </div>
 
-                                <p className="text-sm text-gray-500 mt-1">
-                                    Please log in to manage your cart.
-                                </p>
+                                {/* Content */}
+                                <div className="flex-1">
+                                    <h3 className="text-lg font-semibold text-app-green">
+                                        Login Required
+                                    </h3>
 
-                                <button
-                                    onClick={() => {
-                                        toast.dismiss(t.id);
-                                        navigate("/login")
-                                    }}
-                                    className="mt-3 px-4 py-2 bg-app-green text-white rounded-lg hover:bg-app-green-light transition"
-                                >
-                                    Login Now
-                                </button>
+                                    <p className="text-sm text-gray-500 mt-1">
+                                        Sign in to manage your cart and continue to checkout.
+                                    </p>
+
+                                    <div className="flex justify-end gap-3 mt-5">
+                                        <button
+                                            onClick={() => toast.dismiss(t.id)}
+                                            className="px-4 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100 transition"
+                                        >
+                                            Cancel
+                                        </button>
+
+                                        <button
+                                            onClick={() => {
+                                                toast.dismiss(t.id);
+                                                navigate("/login");
+                                            }}
+                                            className="px-5 py-2 rounded-lg bg-app-green text-white hover:bg-app-green-light transition"
+                                        >
+                                            Login
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                ));
+                ), {
+                    duration: 5000,
+                });
                 return;
             }
 
