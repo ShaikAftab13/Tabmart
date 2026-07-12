@@ -34,7 +34,7 @@ const CartContextProvider = ({ children }) => {
         try {
             console.log("User:",user)
             if (!user) {
-                toast.info("Please log in to add items to your cart.");
+                toast("Please log in to add items to your cart.");
                 return;
             }
             const { data } = await api.post("/cart/add", {
@@ -52,7 +52,7 @@ const CartContextProvider = ({ children }) => {
     const removeFromCart = async (productId) => {
         try {
             if (!user) {
-                toast.info("Please log in to add items to your cart.");
+                toast("Please log in to add items to your cart.");
                 return;
             }
 
@@ -69,7 +69,7 @@ const CartContextProvider = ({ children }) => {
     const updateQuantity = async (productId, quantity) => {
         try {
             if (!user) {
-                toast.info("Please log in to add items to your cart.");
+                toast("Please log in to add items to your cart.");
                 return;
             }
 
@@ -93,7 +93,7 @@ const CartContextProvider = ({ children }) => {
     const clearCart = async () => {
         try {
             if (!user) {
-                toast.info("Please log in to add items to your cart.");
+                toast("Please log in to add items to your cart.");
                 return;
             }
 
