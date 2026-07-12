@@ -32,9 +32,39 @@ const CartContextProvider = ({ children }) => {
 
     const addToCart = async (product, quantity = 1) => {
         try {
-            console.log("User:",user)
+            console.log("User:", user)
             if (!user) {
-                toast("Please log in to add items to your cart.");
+                toast.custom((t) => (
+                    <div
+                        className="bg-white shadow-2xl border border-app-border rounded-2xl p-4 w-[360px]"
+                    >
+                        <div className="flex items-start gap-3">
+                            <div className="w-10 h-10 rounded-full bg-app-green text-white flex items-center justify-center">
+                                🔒
+                            </div>
+
+                            <div className="flex-1">
+                                <h3 className="font-semibold text-app-green">
+                                    Login Required
+                                </h3>
+
+                                <p className="text-sm text-gray-500 mt-1">
+                                    Please log in to add products to your cart.
+                                </p>
+
+                                <button
+                                    onClick={() => {
+                                        toast.dismiss(t.id);
+                                        navigate("/login")
+                                    }}
+                                    className="mt-3 px-4 py-2 bg-app-green text-white rounded-lg hover:bg-app-green-light transition"
+                                >
+                                    Login Now
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                ));
                 return;
             }
             const { data } = await api.post("/cart/add", {
@@ -52,7 +82,37 @@ const CartContextProvider = ({ children }) => {
     const removeFromCart = async (productId) => {
         try {
             if (!user) {
-                toast("Please log in to add items to your cart.");
+                toast.custom((t) => (
+                    <div
+                        className="bg-white shadow-2xl border border-app-border rounded-2xl p-4 w-[360px]"
+                    >
+                        <div className="flex items-start gap-3">
+                            <div className="w-10 h-10 rounded-full bg-app-green text-white flex items-center justify-center">
+                                🔒
+                            </div>
+
+                            <div className="flex-1">
+                                <h3 className="font-semibold text-app-green">
+                                    Login Required
+                                </h3>
+
+                                <p className="text-sm text-gray-500 mt-1">
+                                    Please log in to manage your cart.
+                                </p>
+
+                                <button
+                                    onClick={() => {
+                                        toast.dismiss(t.id);
+                                        navigate("/login")
+                                    }}
+                                    className="mt-3 px-4 py-2 bg-app-green text-white rounded-lg hover:bg-app-green-light transition"
+                                >
+                                    Login Now
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                ));
                 return;
             }
 
@@ -69,7 +129,37 @@ const CartContextProvider = ({ children }) => {
     const updateQuantity = async (productId, quantity) => {
         try {
             if (!user) {
-                toast("Please log in to add items to your cart.");
+                toast.custom((t) => (
+                    <div
+                        className="bg-white shadow-2xl border border-app-border rounded-2xl p-4 w-[360px]"
+                    >
+                        <div className="flex items-start gap-3">
+                            <div className="w-10 h-10 rounded-full bg-app-green text-white flex items-center justify-center">
+                                🔒
+                            </div>
+
+                            <div className="flex-1">
+                                <h3 className="font-semibold text-app-green">
+                                    Login Required
+                                </h3>
+
+                                <p className="text-sm text-gray-500 mt-1">
+                                    Please log in to manage your cart.
+                                </p>
+
+                                <button
+                                    onClick={() => {
+                                        toast.dismiss(t.id);
+                                        navigate("/login")
+                                    }}
+                                    className="mt-3 px-4 py-2 bg-app-green text-white rounded-lg hover:bg-app-green-light transition"
+                                >
+                                    Login Now
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                ));
                 return;
             }
 
@@ -93,7 +183,37 @@ const CartContextProvider = ({ children }) => {
     const clearCart = async () => {
         try {
             if (!user) {
-                toast("Please log in to add items to your cart.");
+                toast.custom((t) => (
+                    <div
+                        className="bg-white shadow-2xl border border-app-border rounded-2xl p-4 w-[360px]"
+                    >
+                        <div className="flex items-start gap-3">
+                            <div className="w-10 h-10 rounded-full bg-app-green text-white flex items-center justify-center">
+                                🔒
+                            </div>
+
+                            <div className="flex-1">
+                                <h3 className="font-semibold text-app-green">
+                                    Login Required
+                                </h3>
+
+                                <p className="text-sm text-gray-500 mt-1">
+                                    Please log in to manage your cart.
+                                </p>
+
+                                <button
+                                    onClick={() => {
+                                        toast.dismiss(t.id);
+                                        navigate("/login")
+                                    }}
+                                    className="mt-3 px-4 py-2 bg-app-green text-white rounded-lg hover:bg-app-green-light transition"
+                                >
+                                    Login Now
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                ));
                 return;
             }
 
