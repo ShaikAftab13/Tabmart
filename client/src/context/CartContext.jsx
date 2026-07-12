@@ -32,6 +32,11 @@ const CartContextProvider = ({ children }) => {
 
     const addToCart = async (product, quantity = 1) => {
         try {
+            console.log("User:",user)
+            if (!user) {
+                toast.info("Please log in to add items to your cart.");
+                return;
+            }
             const { data } = await api.post("/cart/add", {
                 productId: product._id,
                 quantity,
@@ -40,24 +45,34 @@ const CartContextProvider = ({ children }) => {
             setItems(data);
             setIsCartOpen(true);
         } catch (err) {
-            toast.info("Please log in to add items to your cart.");
+            console.error("Failed to add item:", err);
         }
     };
 
     const removeFromCart = async (productId) => {
         try {
+            if (!user) {
+                toast.info("Please log in to add items to your cart.");
+                return;
+            }
+
             const { data } = await api.delete("/cart/remove", {
                 data: { productId },
             });
 
             setItems(data);
         } catch (err) {
-            toast.info("Please log in to manage your cart.");
+            console.error("Failed to remove item:", err);
         }
     };
 
     const updateQuantity = async (productId, quantity) => {
         try {
+            if (!user) {
+                toast.info("Please log in to add items to your cart.");
+                return;
+            }
+
             if (quantity <= 0) {
                 await removeFromCart(productId);
                 return;
@@ -71,17 +86,22 @@ const CartContextProvider = ({ children }) => {
             setItems(data);
 
         } catch (err) {
-            toast.info("Please log in to manage your cart.");
+            console.error("Failed to update quantity:", err);
         }
     };
 
     const clearCart = async () => {
         try {
+            if (!user) {
+                toast.info("Please log in to add items to your cart.");
+                return;
+            }
+
             await api.delete("/cart/clear");
             setItems([]);
             setIsCartOpen(false);
         } catch (err) {
-            toast.info("Please log in to manage your cart.");
+            console.error("Failed to clear cart:", err);
         }
     };
 
