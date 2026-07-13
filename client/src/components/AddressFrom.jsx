@@ -126,12 +126,12 @@ function AddressFrom({
 
                         </div>
 
-                        {/* ZIP & Default */}
+                        {/* PIN & Default */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
 
                             <div>
                                 <label className="mb-1.5 block text-sm font-medium text-gray-700">
-                                    ZIP Code
+                                    PIN Code
                                 </label>
 
                                 <input
